@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>This is my game</title>
+    <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+    <h1>My game</h1>
+    <div ng-app="game" ng-controller="main">
+        <div ng-hide="$socket.connected">Connecting...</div>
+        <div ng-show="$socket.connected" ng-include="state.template"></div>
+        <input ng-model="test">
+    </div>
+    <script type="text/javascript" src="lib/angular.js"></script>
+    <script type="text/javascript" src="lib/angular-animate.js"></script>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+    <script type="text/javascript" src="js/socket.js"></script>
+    <script type="text/javascript" src="js/list.js"></script>
+    <script type="text/javascript" src="js/game.js"></script>
+</body>
+</html>

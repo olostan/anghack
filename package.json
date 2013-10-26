@@ -1,0 +1,16 @@
+{
+  "name": "anghack",
+  "version": "0.0.0",
+  "description": "Template for AngularJS Hackathon",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "angularjs"
+  ],
+  "dependencies": {
+  },
+  "author": "olostan@gmail.com",
+  "license": "BSD-2-Clause"
+}

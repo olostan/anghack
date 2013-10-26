@@ -1,0 +1,6 @@
+<div ng-controller="game" close>
+    <button ng-click="leave()">Leave</button>
+    <div ng-repeat="player in game.players" >
+        Player:<span ng-class="{me:player==myId}">{{player}}</span>
+    </div>
+</div>
