@@ -10,6 +10,8 @@
     "angularjs"
   ],
   "dependencies": {
+    "socket.io": "~0.9.16",
+    "connect": "~2.10.1"
   },
   "author": "olostan@gmail.com",
   "license": "BSD-2-Clause"
