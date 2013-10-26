@@ -4,14 +4,15 @@ module.exports = function (server) {
 
     var socket = io.listen(server);
 
-    var data = {server:true};
+    var data = {server:{type:'boolean',value:true}};
 
     socket.on('connection', function (client) {
 
         client.on('get', function (name) {
-            console.log(data);
-            console.log("respond to",name,"as",data[name])
-            client.emit('data.' + name, data[name]);
+            var result = data[name];
+            if (!result) result = {type:'undefined'};
+            console.log("respond to",name,"as",result);
+            client.emit('data.' + name, result);
         })
 
         client.on('set', function (r) {

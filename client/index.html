@@ -9,7 +9,6 @@
     <div ng-app="game" ng-controller="main">
         <div ng-hide="$socket.connected">Connecting...</div>
         <div ng-show="$socket.connected" ng-include="state.template"></div>
-        <input ng-model="test">
     </div>
     <script type="text/javascript" src="lib/angular.js"></script>
     <script type="text/javascript" src="lib/angular-animate.js"></script>

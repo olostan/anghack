@@ -1,45 +1,140 @@
 angular.module('game')
-    .factory('socket', function($rootScope) {
+    .factory('socket', function ($rootScope) {
         var socket = io.connect();
 
-        var state = {connected:false}
+        var state = {connected: false};
         $rootScope.$socket = state;
-        socket.on('connect', function() {
-            $rootScope.$apply(function() { state.connected = true;});
+        socket.on('connect', function () {
+            $rootScope.$apply(function () {
+                state.connected = true;
+            });
         });
-        socket.on('disconnect', function() {
-             $rootScope.$apply(function() { state.connected = false;});
+        socket.on('disconnect', function () {
+            $rootScope.$apply(function () {
+                state.connected = false;
+            });
         });
         return socket;
 
     })
-    .factory('shared', function ($rootScope,$q,socket) {
+    .factory('shared', function ($rootScope, $q, socket) {
 
-        return function (scope,name,scopeName) {
+        function initByType(type) {
+            switch (type) {
+                case 'string':
+                    return "";
+                case 'object':
+                    return {};
+                case 'array':
+                    return [];
+            }
+            return undefined;
+        }
+
+        function getType(nv) {
+            if (angular.isArray(nv)) return 'array';
+            else return typeof(nv);
+        }
+
+        return function (scope, name, scopeName) {
             var d = $q.defer();
             if (!scopeName) scopeName = name;
-            socket.emit('get',name);
-            var fromServer;
-            var handler = function(data) {
-                fromServer = angular.copy(data);
-                scope.$apply(function() {
-                    scope[scopeName] = data;
+            socket.emit('get', name);
+            var ignore = false;
+            var handler = function (data) {
+                scope.$apply(function () {
+                    if (!scope[scopeName])
+                        scope[scopeName] = initByType(data.type);
+                    else console.log("updating");
+                    //angular.
+                    copy(data.value, scope[scopeName]);
+                    ignore = angular.copy(data.value);
                     if (d) {
-                        d.resolve(data);
+                        d.resolve(scope[scopeName]);
                         d = undefined;
                     }
                 });
-            }
-            socket.on('data.'+name, handler);
-            scope.$watch(scopeName, function(nv) {
-                if (nv==undefined ||  angular.equals(nv,fromServer)) { return;}
+            };
+            socket.on('data.' + name, handler);
+            scope.$watch(scopeName, function (nv, ov) {
+                if (ignore && angular.equals(nv, ignore)) {
+                    console.log('ignored');
+                    return ignore = undefined;
+                }
+                console.log("changed", nv, ov);
+                if (nv === ov
+                //||  angular.equals(nv,fromServer)
+                    ) {
+                    return;
+                }
+                console.log("will send");
                 fromServer = null;
-                socket.emit('set', {name:name, data:nv});
-            },true);
+                socket.emit('set', {name: name, data: {value: nv, type: getType(nv)}});
+            }, true);
 
-            scope.$on('$destroy', function() {
-                socket.removeListener('data.'+name,handler);
+            scope.$on('$destroy', function () {
+                socket.removeListener('data.' + name, handler);
             });
             return d.promise;
         }
     });
+
+function copy(source, destination) {
+    /*    if (angular.isWindow(source) || angular.isScope(source)) {
+     throw "Can't copy! Making copies of Window or Scope instances is not supported.";
+     }*/
+
+    if (!destination) {
+        destination = source;
+        if (source) {
+            if (angular.isArray(source)) {
+                destination = copy(source, []);
+            } else if (angular.isDate(source)) {
+                destination = new Date(source.getTime());
+//            } else if (angular.isRegExp(source)) {
+//                destination = new RegExp(source.source);
+            } else if (angular.isObject(source)) {
+                destination = copy(source, {});
+            }
+        }
+    } else {
+        if (angular.isObject(source) && source === destination) throw "Can't copy! Source and destination are identical.";
+        if (angular.isArray(source)) {
+            /*destination.length = 0;
+             for ( var i = 0; i < source.length; i++) {
+             destination.push(copy(source[i]));
+             } */
+            destination.length = source.length;
+            for (var i = 0; i < source.length; i++) {
+                if (typeof(source[i]) == 'object' && typeof(destination[i]) == 'object')
+                    copy(source[i], destination[i])
+                else destination[i] = source[i];
+            }
+
+        } else {
+            var h = destination.$$hashKey;
+            angular.forEach(destination, function (value, key) {
+                if (source[key]) {
+                    if (angular.isObject(source[key]) || angular.isArray(source[key]))
+                        copy(source[key], destination[key])
+                    else destination[key] = source[key];
+                }
+                else delete destination[key];
+            });
+            for (var key in source) {
+                if (!destination[key]) destination[key] = copy(source[key]);
+            }
+            setHashKey(destination, h);
+
+        }
+    }
+    return destination;
+}
+function setHashKey(obj, h) {
+    if (h) {
+        obj.$$hashKey = h;
+    }
+    else {
+        delete obj.$$hashKey;
+    }
+}
