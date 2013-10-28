@@ -21,6 +21,15 @@ module.exports = function (server) {
             client.broadcast.emit('data.' + r.name, r.data);
         })
 
+        /*
+        // This is hack... not universal
+        client.on('disconnect', function() {
+            if (!data.state || !data.state.value) return;
+            var idx = data.state.value.players.reduce(function(pv,cv,i) { return cv.id==client.id?i:pv},-1);
+            console.log("Logging off",idx);
+            if (idx>=0) data.state.value.players.splice(idx,1);
+        })*/
+
         // here we have client.id
 
         //client.on('message', function(message) {console.log(message)});

@@ -1,0 +1,38 @@
+<div ng-controller="typer">
+    <div unload="leave()">
+        Players:
+        <button ng-click="clear()">Clear</button>
+        <div ng-repeat="player in state.players track by player.id">
+            {{ player.name}} <span ng-hide="player.name">Anonymous</span>
+        <span ng-show="state.mode=='waiting'">
+            <span ng-show="player.ready">Ready!</span>
+            <span ng-hide="player.ready">waiting...</span>
+        </span>
+        <span ng-show="state.mode=='started'">
+            <span ng-show="me.id == player.id" class="you">[YOU]</span>
+            : {{calculate(player)}}
+        </span>
+
+        <span ng-show="state.mode=='won'">
+            <span ng-show="me.id == player.id" class="you">[YOU]</span>
+            <span ng-show="player.winner" class="winner">WINNER!</span>
+        </span>
+
+        </div>
+    </div>
+    <div ng-show="inGame">
+        Your name:
+        <span ng-show="state.mode=='waiting'">
+            <input ng-model="me.name"> <input type="checkbox" ng-model="me.ready"> Ready
+        </span>
+        <span ng-hide="state.mode=='waiting'">
+             {{me.name}}
+        </span>
+    </div>
+    <div ng-show="state.mode=='started'" class="task">
+        <span ng-repeat="l in state.text.split('') track by $index" ng-class='check($index)'>{{l}}<span class="h">cheater</span></span>
+    </div>
+    <div ng-show="state.mode=='started' && inGame">
+        <textarea ng-model="me.text" cols="80" rows="5" ng-trim='false'></textarea>
+    </div>
+</div>

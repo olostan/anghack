@@ -1,3 +1,42 @@
-.me {
+.task {
+    border: solid 1px #883;
+    padding: 10px;
+    margin: 10px;
+    background-color: #FFD;
+    font-family: monospace;
+    font-weight: bolder;
+    font-size: 22px;
+}
+textarea {
+    padding: 10px;
+    margin: 10px;
+    font-family: monospace;
+    font-size: 18px;
+}
+.correct {
     color: green;
+}
+.todo {
+    color: gray;
+}
+.incorrect {
+    color: red;
+}
+.current {
+    border: solid 1px blue;
+}
+.you {
+    color: green;
+    background-color: #5F5;
+    margin: 5px;
+}
+.winner {
+    color: red;
+    font-size: 25px;
+}
+.h {
+    display: inline-block;
+    color: rgba(0,0,0,0);
+    position: absolute;
+    overflow: visible;
 }

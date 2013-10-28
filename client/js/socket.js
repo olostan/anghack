@@ -1,4 +1,4 @@
-angular.module('game')
+angular.module('shared',[])
     .factory('socket', function ($rootScope) {
         var socket = io.connect();
 
@@ -41,16 +41,22 @@ angular.module('game')
             if (!scopeName) scopeName = name;
             socket.emit('get', name);
             var ignore = false;
+            var save = function () {
+                var nv = scope[scopeName];
+                socket.emit('set', {name: name, data: {value: nv, type: getType(nv)}});
+            }
             var handler = function (data) {
                 scope.$apply(function () {
                     if (!scope[scopeName])
                         scope[scopeName] = initByType(data.type);
-                    else console.log("updating");
                     //angular.
-                    copy(data.value, scope[scopeName]);
+                    if (data.type=='object'||data.type=='array')
+                        copy(data.value, scope[scopeName]);
+                    else
+                        scope[scopeName] = data.value;
                     ignore = angular.copy(data.value);
                     if (d) {
-                        d.resolve(scope[scopeName]);
+                        d.resolve(save);
                         d = undefined;
                     }
                 });
@@ -58,18 +64,12 @@ angular.module('game')
             socket.on('data.' + name, handler);
             scope.$watch(scopeName, function (nv, ov) {
                 if (ignore && angular.equals(nv, ignore)) {
-                    console.log('ignored');
                     return ignore = undefined;
                 }
-                console.log("changed", nv, ov);
-                if (nv === ov
-                //||  angular.equals(nv,fromServer)
-                    ) {
+                if (nv === ov) {
                     return;
                 }
-                console.log("will send");
-                fromServer = null;
-                socket.emit('set', {name: name, data: {value: nv, type: getType(nv)}});
+                save();
             }, true);
 
             scope.$on('$destroy', function () {

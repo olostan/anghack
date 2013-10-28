@@ -6,6 +6,7 @@ var c = connect();
 c.use(connect.static('./client'));
 c.use(connect.directory('./client/'));
 c.use(require('./server/ip')(port))
+c.use(require('./server/sample'))
 
 var server = require('http').createServer(c);
 
